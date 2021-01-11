@@ -1,206 +1,473 @@
-# nagios
+yum -y install httpd php gcc glibc glibc-common wget perl gd gd-devel unzip zip
 
-Prerequisites #
-Before continuing with this tutorial, make sure you are logged in as a user with sudo privileges .
+Create a nagios user and nagcmd group for allowing the external commands to be executed through the web interface, add the nagios and apache user to be a part of the nagcmd group.
 
-Disable SELinux or set in permissive mode as instructed here .
+useradd nagios
+groupadd nagcmd
+usermod -a -G nagcmd nagios
+usermod -a -G nagcmd apache
 
-Update your CentOS system and install Apache , PHP and all the packages necessary to download and compile the Nagios main application and Nagios plugins:
+Install Nagios Server
+Download the latest version of Nagios Core using the terminal.
 
+cd /tmp/
+wget https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.4.3.tar.gz
+tar -zxvf nagios-4.4.3.tar.gz
+cd /tmp/nagios-4.4.3
 
-sudo yum update
-sudo yum install httpd php php-cli gcc glibc glibc-common gd gd-devel net-snmp openssl-devel wget
-sudo yum install make gettext autoconf net-snmp-utils epel-release perl-Net-SNMP postfix unzip automake
-Installing Nagios on CentOS
-Perform the following steps to install the latest version of Nagios Core from source.
+Compile and Install Nagios.
 
-1. Downloading Nagios
-We’ll download Nagios source in the /usr/src directory which is the common location to place source files.
+./configure --with-nagios-group=nagios --with-command-group=nagcmd
+make all
+make install
+make install-init
+make install-config
+make install-commandmode
 
+Install Nagios Web Interface
+Install the Nagios web configuration using the following command.
 
-Navigate to the directory with:
+make install-webconf
 
-cd /usr/src/
-Download the latest version of Nagios from the project Github repository using the following wget command :
+Run the following command to install a Nagios exfoliation theme
 
-sudo wget https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.2.tar.gz
-Once the download is complete extract the tar file with:
+make install-exfoliation
 
-sudo tar zxf nagios-*.tar.gz
-Before continuing with the next steps, make sure you change to the Nagios source directory by typing:
+Create a user account (nagiosadmin) for logging into the Nagios web interface. Remember the password that you assign to this user – you’ll need it later.
 
-cd nagioscore-nagios-*/
-2. Compiling Nagios
-To start the build process run the configure script which will perform a number of checks to make sure all of the dependencies on your system are present:
+htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+Restart Apache web server to make the new settings take effect.
 
-sudo ./configure
-Upon successful completion, the following message will be printed on your screen:
+### CentOS 7 / RHEL 7 ###
 
-*** Configuration summary for nagios 4.4.2 2018-08-16 ***:
+systemctl restart httpd
+systemctl enable httpd
 
- General Options:
- -------------------------
-        Nagios executable:  nagios
-        Nagios user/group:  nagios,nagios
-       Command user/group:  nagios,nagios
-             Event Broker:  yes
-        Install ${prefix}:  /usr/local/nagios
-    Install ${includedir}:  /usr/local/nagios/include/nagios
-                Lock file:  /run/nagios.lock
-   Check result directory:  /usr/local/nagios/var/spool/checkresults
-           Init directory:  /lib/systemd/system
-  Apache conf.d directory:  /etc/httpd/conf.d
-             Mail program:  /sbin/sendmail
-                  Host OS:  linux-gnu
-          IOBroker Method:  epoll
+### CentOS 6 / RHEL 6 ###
 
- Web Interface Options:
- ------------------------
-                 HTML URL:  http://localhost/nagios/
-                  CGI URL:  http://localhost/nagios/cgi-bin/
- Traceroute (used by WAP):  /bin/traceroute
+service httpd start
+chkconfig httpd on
+
+Configure Nagios Server
+Sample configuration files have now been installed in the /usr/local/nagios/etc directory. These sample files should work fine for getting started with Nagios. You’ll need to make just one change before you proceed.
+
+Edit the /usr/local/nagios/etc/objects/contacts.cfg config file with your favorite editor and change the email address associated with the nagiosadmin contact definition to the address you’d like to use for receiving alerts.
+
+vi /usr/local/nagios/etc/objects/contacts.cfg
+
+Change the Email address field to receive the notification.
 
 
-Review the options above for accuracy.  If they look okay,
-type 'make all' to compile the main program and CGIs.
-Start the compilation process using the make command:
 
-sudo make all
-The compilation may take some time, depending on your system. Once the build process is completed, the following message will be printed on your screen:
+define contact{
+        contact_name                    nagiosadmin             ; Short name of user
+        use                             generic-contact         ; Inherit default values from generic-contact template (defined above)
+        alias                           Nagios Admin            ; Full name of user
 
-....
-*** Compile finished ***
+        email                           admin@itzgeek.com       ; <<***** CHANGE THIS TO YOUR EMAIL ADDRESS ******
+        }
+        
+        
+Install Nagios Plugins
+Download Nagios Plugins to /tmp directory.
+
+cd /tmp
+wget https://nagios-plugins.org/download/nagios-plugins-2.2.1.tar.gz
+tar -zxvf nagios-plugins-2.2.1.tar.gz
+cd /tmp/nagios-plugins-2.2.1/
+
+Compile and install the Nagios plugins.
+
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make
+make install
+
+Start Nagios Server
+
+Verify the sample Nagios configuration files.
+
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+Output:
+
+Nagios Core 4.4.3
+Copyright (c) 2009-present Nagios Core Development Team and Community Contributors
+Copyright (c) 1999-2009 Ethan Galstad
+Last Modified: 2019-01-15
+License: GPL
+
+Website: https://www.nagios.org
+Reading configuration data...
+   Read main config file okay...
+   Read object config files okay...
+
+Running pre-flight check on configuration data...
+
+Checking objects...
+        Checked 8 services.
+        Checked 1 hosts.
+        Checked 1 host groups.
+        Checked 0 service groups.
+        Checked 1 contacts.
+        Checked 1 contact groups.
+        Checked 24 commands.
+        Checked 5 time periods.
+        Checked 0 host escalations.
+        Checked 0 service escalations.
+Checking for circular paths...
+        Checked 1 hosts
+        Checked 0 service dependencies
+        Checked 0 host dependencies
+        Checked 5 timeperiods
+Checking global event handlers...
+Checking obsessive compulsive processor commands...
+Checking misc settings...
+
+Total Warnings: 0
+Total Errors:   0
+
+Things look okay - No serious problems were detected during the pre-flight check
+If there are no errors, then start the Nagios service.
+
+
+service nagios start
+Start Nagios on system startup.
+
+chkconfig nagios on
+SELinux
+See if SELinux is in Enforcing mode.
+
+getenforce
+Put SELinux in Permissive mode or disable it.
+
+setenforce 0
+To make this change permanent, you will have to modify /etc/selinux/config and reboot the system.
+
+Firewall
+Make sure to allow web server access through the firewall.
+
+### FirwallD ###
+
+firewall-cmd --permanent --add-service=http
+firewall-cmd --reload
+
+
+Access Nagios Web Interface
+Now access the Nagios web interface using the following URL. You’ll be prompted for the username (nagiosadmin) and password you specified earlier.
+
+http://ip-add-re-ss/nagios/
+
+
+
+
+
+NOW CONFIGURE THE CLIENT/REMOTE SERVER
+
+Monitor Remote Linux Systems With Nagios
+
+On Remote Linux System
+Nagios Remote Plugin Executor (abbreviated as NRPE) plugin allows you to monitor applications and services running on remote Linux / Windows hosts. This NRPE Add-on helps Nagios to monitor local resources like CPU, Memory, Disk, Swap, etc. of the remote host.
+
+Install NRPE Add-on & Nagios Plugins
+CentOS / RHEL
+NRPE Server and Nagios plugins are available in the EPEL repository for CentOS / RHEL. So, configure the EPEL repository your CentOS / RHEL system.
+
+### CentOS 8 / RHEL 8 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+### CentOS 7 / RHEL 7 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+### CentOS 6 / RHEL 6 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+Use the following command to install NRPE Add-on and Nagios plugins.
+
+yum install -y nrpe nagios-plugins-all
+Ubuntu / Debian
+Use the following command to install NRPE Add-on and Nagios plugins.
+
+sudo apt update
+
+sudo apt install -y nagios-nrpe-server nagios-plugins
+Configure NRPE Add-on
+Modify the NRPE configuration file to accept the connection from the Nagios server, Edit the /etc/nagios/nrpe.cfg file.
+
+### CentOS / RHEL ###
+
+vi /etc/nagios/nrpe.cfg
+
+### Ubuntu / Debian ###
+
+sudo nano /etc/nagios/nrpe.cfg
+Add the Nagios servers IP address, separated by comma like below.
+
+allowed_hosts=192.168.0.10
+
+Configure Nagios Checks
+The /etc/nagios/nrpe.cfg file contains the basic commands to check the attributes (CPU, Memory, Disk, etc.architecure) and services (HTTP, FTP, etc.) on remote hosts.
+
+The path to Nagios plugins may change depends on your operating system architecture (i386 or x86_64).
+CentOS / RHEL
+vim /etc/nagios/nrpe.cfg
+
+Below command lines let you monitor logged in users, system load, root filesystem usage, swap usage and the total number of the process with the help of Nagios plugins.
+
+# COMMAND DEFINITIONS
+
 ...
-For more information on obtaining support for Nagios, visit:
+...
 
-       https://support.nagios.com
+command[check_users]=/usr/lib64/nagios/plugins/check_users -w 5 -c 10
+command[check_load]=/usr/lib64/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_root]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /
+command[check_swap]=/usr/lib64/nagios/plugins/check_swap -w 20% -c 10%
+command[check_total_procs]=/usr/lib64/nagios/plugins/check_procs -w 150 -c 200
 
-*************************************************************
+Ubuntu / Debian
+sudo nano /etc/nagios/nrpe.cfg
+Below command lines let you monitor logged in users, system load, root filesystem usage, swap usage and the total number of the process with the help of Nagios plugins.
 
-Enjoy.
-3. Creating Nagios User And Group
-Create a new system nagios user and group by issuing:
-sudo make install-groups-users
 
-The output will look something like below:
+ 
+ADVERTISEMENT
 
-groupadd -r nagios
-useradd -g nagios nagios
-Add the Apache apache user to the nagios group:
-
-sudo usermod -a -G nagios apache
-4. Installing Nagios Binaries
-Run the following command to install Nagios binary files, CGIs, and HTML files:
-
-sudo make install
-You should see the following output:
+# COMMAND DEFINITIONS
 
 ...
-*** Main program, CGIs and HTML files installed ***
 ...
-5. Creating External Command Directory
-Nagios can process commands from external applications. Create the external command directory and set the proper permissions by typing:
+
+command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
+command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_root]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p /
+command[check_swap]=/usr/lib/nagios/plugins/check_swap -w 20% -c 10%
+command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 150 -c 200
+
+In the above command definition -w stands for warning and -c stands for critical.
+Test Nagios Checks
+For example, execute the below command in another terminal to see the check result.
+
+Ubuntu 18.04:
+
+/usr/lib/nagios/plugins/check_procs -w 150 -c 200
+
+Output:
+
+PROCS WARNING: 190 processes | procs=190;150;200;0;
+
+Nagios plugin will count running processes and will warn you if the process count is more than 150, or it will report you critical if the process count is more than 200, and at the same time, the output will state OK if the count is below 150.
+
+You can adjust the alert level as per your requirements.
+
+Change warning to 200 and critical to 250 for testing purposes. Now you will see an OK message.
+
+/usr/lib/nagios/plugins/check_procs -w 200 -c 250
+Output:
+
+PROCS OK: 189 processes | procs=189;200;250;0;
+These command definitions have to be entered on a template file on the Nagios server host to enable the monitoring.
+
+Restart the NRPE service.
+
+### CentOS / RHEL ###
+
+systemctl start nrpe
+
+systemctl enable nrpe
+
+### Ubuntu / Debian ### 
+
+sudo systemctl restart nagios-nrpe-server
+Firewall
+Configure the firewall so that the Nagios server can able to reach the NRPE server running on a remote Linux host. Run these commands on a remote Linux machine.
+
+FirewallD
+firewall-cmd --permanent --add-port=5666/tcp
+
+firewall-cmd --reload
+
+IP Tables
+iptables -I INPUT -p tcp --dport 5666 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+
+iptables -I OUTPUT -p tcp --sport 5666 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+/etc/init.d/iptables save
+
+On Nagios Server
+Install NRPE plugin
+This NRPE plugin provides check_nrpe plugin which contacts the NRPE server on remote machines to check the services or resource.
+
+CentOS / RHEL
+Nagios NRPE plugin is available in the EPEL repository for CentOS / RHEL. So, configure the EPEL repository your CentOS / RHEL system.
+
+### CentOS 8 / RHEL 8 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+### CentOS 7 / RHEL 7 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+### CentOS 6 / RHEL 6 ###
+
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+Use the following command to install the NRPE plugin on your machine.
+
+ yum -y install nagios-plugins-nrpe
+ 
+Ubuntu / Debian
+Use the following command to install the NRPE plugin on your machine.
+
+sudo apt install -y nagios-nrpe-plugin
+
+Edit Configuration
+Edit the Nagios configuration file to include all .cfg files inside the /usr/local/nagios/etc/servers directory.
 
 
-sudo make install-commandmode
-*** External command directory configured ***
-6. Install Nagios Configuration Files
-Install the sample Nagios configuration files with:
+ 
+ADVERTISEMENT
 
-sudo make install-config
-...
-*** Config files installed ***
+### CentOS / RHEL ###
 
-Remember, these are *SAMPLE* config files.  You'll need to read
-the documentation for more information on how to actually define
-services, hosts, etc. to fit your particular needs.
-7. Install Apache Configuration Files
-Run the command below to install the Apache web server configuration files:
+vi /usr/local/nagios/etc/nagios.cfg
 
-sudo make install-webconf
-...
-*** Nagios/Apache conf file installed ***
-8. Creating Systemd Unit File
-The following command installs a systemd unit file and also configure the nagios service to start on boot.
+### Ubuntu / Debian ###
 
-sudo make install-daemoninit
-...
-*** Init script installed ***
-9. Creating User Account
-To be able to access the Nagios web interface wel’ll create an admin user called nagiosadmin
+sudo nano /usr/local/nagios/etc/nagios.cfg
 
-Run the following htpasswd command to create a user called nagiosadmin
+Add or uncomment the following line.
+
+cfg_dir=/usr/local/nagios/etc/servers
+Create a configuration directory.
+
+### CentOS / RHEL ###
+
+mkdir /usr/local/nagios/etc/servers
+
+### Ubuntu / Debian ###
+
+sudo mkdir /usr/local/nagios/etc/servers
+
+Add Command Definition
+Now it’s time to configure the Nagios server to monitor the remote client machine, and You’ll need to create a command definition in Nagios object configuration file to use the check_nrpe plugin.
+
+Open the commands.cfg file.
+
+CentOS / RHEL
+vi /usr/local/nagios/etc/objects/commands.cfg
+
+Add the following Nagios command definition to the file.
+
+# .check_nrpe. command definition
+define command{
+command_name check_nrpe
+command_line /usr/lib64/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -t 30 -c $ARG1$
+}
+Ubuntu / Debian
+sudo nano /usr/local/nagios/etc/objects/commands.cfg
+Add the following Nagios command definition to the file.
+
+# .check_nrpe. command definition
+define command{
+command_name check_nrpe
+command_line /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -t 30 -c $ARG1$
+}
+Add a Linux host to Nagios server
+Create a client configuration file /usr/local/nagios/etc/servers/client.itzgeek.local.cfg to define the host and service definitions of remote Linux host.
+
+### CentOS / RHEL ###
+
+vi /usr/local/nagios/etc/servers/client.itzgeek.local.cfg
+
+### Ubuntu / Debian ###
+
+sudo nano /usr/local/nagios/etc/servers/client.itzgeek.local.cfg
+Copy the below content to the above file.
+
+You can also use the following template and modify it according to your requirements. The following template is for monitoring logged in users, system load, disk usage (/ – partition), swap, and total process.
+
+define host{
+                           
+            use                     linux-server            
+            host_name               client.itzgeek.local            
+            alias                   client.itzgeek.local            
+            address                 192.168.0.20
+                                    
+}                                   
+                                    
+define hostgroup{                   
+                                    
+            hostgroup_name          linux-server            
+            alias                   Linux Servers            
+            members                 client.itzgeek.local
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               client.itzgeek.local            
+            service_description     SWAP Uasge            
+            check_command           check_nrpe!check_swap                          
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               client.itzgeek.local            
+            service_description     Root / Partition            
+            check_command           check_nrpe!check_root                          
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               client.itzgeek.local            
+            service_description     Current Users            
+            check_command           check_nrpe!check_users                         
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               client.itzgeek.local            
+            service_description     Total Processes            
+            check_command           check_nrpe!check_total_procs                   
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               client.itzgeek.local            
+            service_description     Current Load            
+            check_command           check_nrpe!check_load
+
+}
 
 
-sudo htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
-You will be prompted to enter and confirm the user’s password.
+Verify Nagios for any errors.
 
-New password:
-Re-type new password:
-Adding password for user nagiosadmin
-Restart the Apache service for changes to take effect:
+### CentOS / RHEL ###
 
-sudo systemctl restart httpd
-Configure the Apache service to start on boot.
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
 
-sudo systemctl enable httpd
-10. Configuring Firewall
-The firewall will secure your server against unwanted traffic.
+### Ubuntu / Debian ###
 
-If you don’t have a firewall configured on your server, you can check our guide about how to setup a firewall with firewalld on centos
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+Restart the Nagios server.
 
-Open the Apache ports by running the following commands:
+### CentOS / RHEL ###
 
-sudo firewall-cmd --permanent --zone=public --add-service=http
-sudo firewall-cmd --permanent --zone=public --add-service=https
-sudo firewall-cmd --reload
-Installing Nagios Plugins
-Switch back to the /usr/src directory:
+systemctl restart nagios
 
-cd /usr/src/
-Download the latest version of the Nagios Plugins from the project Github repository :
+### Ubuntu / Debian ###
 
-sudo wget -O nagios-plugins.tar.gz https://github.com/nagios-plugins/nagios-plugins/archive/release-2.2.1.tar.gz
-When the download is complete extract the tar file:
+sudo systemctl restart nagios
+Check Nagios Monitoring
+Go and check the Nagios web interface to view the new services we added just now.
 
-sudo tar zxf nagios-plugins.tar.gz
-Change to the plugins source directory:
-
-cd nagios-plugins-release-2.2.1
-Run the following commands one by one to compile and install the Nagios plugins:
-
-sudo ./tools/setup
-sudo ./configure
-sudo make
-sudo make install
-Starting Nagios
-Now that both Nagios and its plugins are installed, start the Nagios service with:
-
-
-sudo systemctl start nagios
-To verify that Nagios is running, check the service status with the following command:
-
-sudo systemctl status nagios
-The output should look something like below indicating that Nagios service is active and running.
-
- nagios.service - Nagios Core 4.4.2
-   Loaded: loaded (/usr/lib/systemd/system/nagios.service; enabled; vendor preset: disabled)
-   Active: active (running) since Sat 2018-12-08 14:33:35 UTC; 3s ago
-     Docs: https://www.nagios.org/documentation
-  Process: 22217 ExecStart=/usr/local/nagios/bin/nagios -d /usr/local/nagios/etc/nagios.cfg (code=exited, status=0/SUCCESS)
-  Process: 22216 ExecStartPre=/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg (code=exited, status=0/SUCCESS)
- Main PID: 22219 (nagios)
-   CGroup: /system.slice/nagios.service
-Accessing the Nagios Web Interface
-To access the Nagios web interface open your favorite browser and type your server’s domain name or public IP address followed by /nagios:
-
-http(s)://your_domain_or_ip_address/nagios
-Enter the nagiosadmin user login credentials and you will be redirected to the default Nagios home page as shown on the image below:
-
-Install Nagios on CentOS
-Conclusion
-You have successfully installed the latest Nagios version from source on your CentOS system.
-
-You should now check the Nagios Documentation and learn more about how to configure and use Nagios.
-
-If you hit a problem or have feedback, leave a comment below.
