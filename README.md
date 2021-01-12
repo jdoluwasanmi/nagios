@@ -197,7 +197,7 @@ Modify the NRPE configuration file to accept the connection from the Nagios serv
 
 ### CentOS / RHEL ###
 
-vi /etc/nagios/nrpe.cfg
+vim /etc/nagios/nrpe.cfg
 
 ### Ubuntu / Debian ###
 
@@ -325,13 +325,9 @@ sudo apt install -y nagios-nrpe-plugin
 Edit Configuration
 Edit the Nagios configuration file to include all .cfg files inside the /usr/local/nagios/etc/servers directory.
 
-
- 
-ADVERTISEMENT
-
 ### CentOS / RHEL ###
 
-vi /usr/local/nagios/etc/nagios.cfg
+vim /usr/local/nagios/etc/nagios.cfg
 
 ### Ubuntu / Debian ###
 
@@ -379,11 +375,11 @@ Create a client configuration file /usr/local/nagios/etc/servers/client.itzgeek.
 
 ### CentOS / RHEL ###
 
-vi /usr/local/nagios/etc/servers/client.itzgeek.local.cfg
+vim /usr/local/nagios/etc/servers/zabbix.johnlord.comm.cfg
 
 ### Ubuntu / Debian ###
 
-sudo nano /usr/local/nagios/etc/servers/client.itzgeek.local.cfg
+sudo nano /usr/local/nagios/etc/servers/zabbix.johnlord.comm.cfg
 Copy the below content to the above file.
 
 You can also use the following template and modify it according to your requirements. The following template is for monitoring logged in users, system load, disk usage (/ – partition), swap, and total process.
@@ -391,9 +387,9 @@ You can also use the following template and modify it according to your requirem
 define host{
                            
             use                     linux-server            
-            host_name               client.itzgeek.local            
-            alias                   client.itzgeek.local            
-            address                 192.168.0.20
+            host_name               zabbix.johnlord.comm            
+            alias                   zabbix.johnlord.comm            
+            address                 192.168.0.47
                                     
 }                                   
                                     
@@ -401,13 +397,13 @@ define hostgroup{
                                     
             hostgroup_name          linux-server            
             alias                   Linux Servers            
-            members                 client.itzgeek.local
+            members                 zabbix.johnlord.comm
 }                                   
                                     
 define service{                     
                                     
             use                     local-service            
-            host_name               client.itzgeek.local            
+            host_name               zabbix.johnlord.comm            
             service_description     SWAP Uasge            
             check_command           check_nrpe!check_swap                          
                                     
@@ -416,16 +412,16 @@ define service{
 define service{                     
                                     
             use                     local-service            
-            host_name               client.itzgeek.local            
+            host_name               zabbix.johnlord.comm            
             service_description     Root / Partition            
             check_command           check_nrpe!check_root                          
                                     
 }                                   
-                                    
+
 define service{                     
                                     
             use                     local-service            
-            host_name               client.itzgeek.local            
+            host_name               zabbix.johnlord.comm            
             service_description     Current Users            
             check_command           check_nrpe!check_users                         
                                     
@@ -434,7 +430,7 @@ define service{
 define service{                     
                                     
             use                     local-service            
-            host_name               client.itzgeek.local            
+            host_name               zabbix.johnlord.comm            
             service_description     Total Processes            
             check_command           check_nrpe!check_total_procs                   
                                     
@@ -443,12 +439,11 @@ define service{
 define service{                     
                                     
             use                     local-service            
-            host_name               client.itzgeek.local            
+            host_name               zabbix.johnlord.comm            
             service_description     Current Load            
             check_command           check_nrpe!check_load
 
 }
-
 
 Verify Nagios for any errors.
 
