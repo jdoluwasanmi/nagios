@@ -161,7 +161,7 @@ http://ip-add-re-ss/nagios/
 
 
 
-NOW CONFIGURE THE CLIENT/REMOTE SERVER
+******NOW CONFIGURE THE CLIENT/REMOTE SERVER
 
 Monitor Remote Linux Systems With Nagios
 
@@ -231,8 +231,6 @@ sudo nano /etc/nagios/nrpe.cfg
 Below command lines let you monitor logged in users, system load, root filesystem usage, swap usage and the total number of the process with the help of Nagios plugins.
 
 
- 
-ADVERTISEMENT
 
 # COMMAND DEFINITIONS
 
@@ -295,7 +293,7 @@ iptables -I OUTPUT -p tcp --sport 5666 -m conntrack --ctstate ESTABLISHED -j ACC
 
 /etc/init.d/iptables save
 
-On Nagios Server
+***********On Nagios Server
 Install NRPE plugin
 This NRPE plugin provides check_nrpe plugin which contacts the NRPE server on remote machines to check the services or resource.
 
@@ -371,7 +369,7 @@ command_name check_nrpe
 command_line /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -t 30 -c $ARG1$
 }
 Add a Linux host to Nagios server
-Create a client configuration file /usr/local/nagios/etc/servers/client.itzgeek.local.cfg to define the host and service definitions of remote Linux host.
+Create a client configuration file /usr/local/nagios/etc/servers/zabbix.johnlord.comm.cfg to define the host and service definitions of remote Linux host.
 
 ### CentOS / RHEL ###
 
