@@ -464,3 +464,12 @@ sudo systemctl restart nagios
 Check Nagios Monitoring
 Go and check the Nagios web interface to view the new services we added just now.
 
+
+
+
+
+
+***LINK TO AUTOMATE NAGIOS DOCUMENTATION THRU ANSIBLE FOR NRPE CLIENT***
+https://www.neteye-blog.com/2018/04/how-to-deploy-nrpe-on-centos-7-with-ansible/
+
+
