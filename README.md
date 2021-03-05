@@ -186,6 +186,7 @@ rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
 Use the following command to install NRPE Add-on and Nagios plugins.
 
 yum install -y nrpe nagios-plugins-all
+
 Ubuntu / Debian
 Use the following command to install NRPE Add-on and Nagios plugins.
 
@@ -473,3 +474,53 @@ Go and check the Nagios web interface to view the new services we added just now
 https://www.neteye-blog.com/2018/04/how-to-deploy-nrpe-on-centos-7-with-ansible/
 
 
+
+
+
+
+
+define service{
+
+            use                     local-service
+            host_name               nginx.johnlord.comm
+            service_description     SWAP Uasge
+            check_command           check_nrpe!check_swap
+
+}   
+
+define service{
+
+            use                     local-service
+            host_name               nginx.johnlord.comm
+            service_description     Root / Partition
+            check_command           check_nrpe!check_root
+
+}
+
+define service{
+
+            use                     local-service
+            host_name               nginx.johnlord.comm
+            service_description     Current Users
+            check_command           check_nrpe!check_users
+
+}
+
+define service{
+
+            use                     local-service
+            host_name               nginx.johnlord.comm
+            service_description     Total Processes
+            check_command           check_nrpe!check_total_procs
+
+ }
+
+define service{
+
+            use                     local-service
+            host_name               nginx.johnlord.comm
+            service_description     Current Load
+            check_command           check_nrpe!check_load
+
+}                                                                                     133,1         64%
+                  
