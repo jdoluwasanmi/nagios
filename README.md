@@ -482,7 +482,7 @@ https://www.neteye-blog.com/2018/04/how-to-deploy-nrpe-on-centos-7-with-ansible/
 define service{
 
             use                     local-service
-            host_name               nginx.johnlord.comm
+            host_name               dns.johnlord.comm
             service_description     SWAP Uasge
             check_command           check_nrpe!check_swap
 
@@ -491,7 +491,7 @@ define service{
 define service{
 
             use                     local-service
-            host_name               nginx.johnlord.comm
+            host_name               dns.johnlord.comm
             service_description     Root / Partition
             check_command           check_nrpe!check_root
 
@@ -500,7 +500,7 @@ define service{
 define service{
 
             use                     local-service
-            host_name               nginx.johnlord.comm
+            host_name               dns.johnlord.comm
             service_description     Current Users
             check_command           check_nrpe!check_users
 
@@ -509,7 +509,7 @@ define service{
 define service{
 
             use                     local-service
-            host_name               nginx.johnlord.comm
+            host_name               dns.johnlord.comm
             service_description     Total Processes
             check_command           check_nrpe!check_total_procs
 
@@ -518,9 +518,9 @@ define service{
 define service{
 
             use                     local-service
-            host_name               nginx.johnlord.comm
+            host_name               dns.johnlord.comm
             service_description     Current Load
             check_command           check_nrpe!check_load
 
-}                                                                                     133,1         64%
+}                                                                                     
                   
