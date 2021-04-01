@@ -524,3 +524,10 @@ define service{
 
 }                                                                                     
                   
+                  
+#!/bin/bash
+
+yum update -y
+yum install epel-release vim wget java -y
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y nrpe nagios-plugins-all
