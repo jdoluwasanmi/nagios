@@ -227,6 +227,17 @@ command[check_root]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /
 command[check_swap]=/usr/lib64/nagios/plugins/check_swap -w 20% -c 10%
 command[check_total_procs]=/usr/lib64/nagios/plugins/check_procs -w 150 -c 200
 
+
+command[check_users]=/usr/lib64/nagios/plugins/check_users -w 5 -c 10
+command[check_disk_all]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -W 10% -K 5% -N xfs -N ext4 -N nfs
+command[check_load]=/usr/lib64/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_all_memory]=/usr/lib64/nagios/plugins/check_mem -w 90 -c 95
+command[check_root]=/usr/lib64/nagios/plugins/check_disk -w 20% -c 10% -p /dev/mapper/centos-root
+command[check_dnslookup_johnlord.comm]=/usr/lib64/nagios/plugins/check_dns -H johnlord.comm -w 3 -c 6
+command[check_swap]=/usr/lib64/nagios/plugins/check_swap -w 20% -c 10%
+command[check_all_mountpoints]=/usr/lib64/nagios/plugins/check_mountpoints -a
+command[check_total_procs]=/usr/lib64/nagios/plugins/check_procs -w 150 -c 200
+
 Ubuntu / Debian
 sudo nano /etc/nagios/nrpe.cfg
 Below command lines let you monitor logged in users, system load, root filesystem usage, swap usage and the total number of the process with the help of Nagios plugins.
