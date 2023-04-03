@@ -294,6 +294,11 @@ iptables -I OUTPUT -p tcp --sport 5666 -m conntrack --ctstate ESTABLISHED -j ACC
 
 /etc/init.d/iptables save
 
+
+
+
+
+
 ***********On Nagios Server
 Install NRPE plugin
 This NRPE plugin provides check_nrpe plugin which contacts the NRPE server on remote machines to check the services or resource.
