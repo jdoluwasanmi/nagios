@@ -540,7 +540,7 @@ define service{
 
 }                                                                                     
                   
-                  
+                
                   
             host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm,oracle.johnlord.comm
             
@@ -551,3 +551,213 @@ yum update -y
 yum install epel-release vim wget java -y
 rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum install -y nrpe nagios-plugins-all
+
+
+
+
+Nagios object config
+[root@nagios ~]# cat /usr/local/nagios/etc/servers/maven.johnlord.comm.cfg
+define host{
+                           
+            use                     linux-server            
+            host_name               apache.johnlord.comm            
+            alias                   apache.johnlord.comm            
+            address                 192.168.0.62
+                                    
+}                                   
+
+define host{
+
+            use                     linux-server
+            host_name               maven.johnlord.comm
+            alias                   maven.johnlord.comm
+            address                 192.168.0.48
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               jenkins.johnlord.comm
+            alias                   jenkins.johnlord.comm
+            address                 192.168.0.31
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               git.johnlord.comm
+            alias                   git.johnlord.comm
+            address                 192.168.0.58
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               ans.johnlord.comm
+            alias                   ans.johnlord.comm
+            address                 192.168.0.39
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               tomcat.johnlord.comm
+            alias                   tomcat.johnlord.comm
+            address                 192.168.0.36
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               sona.johnlord.comm
+            alias                   sona.johnlord.comm
+            address                 192.168.0.59
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               gradle.johnlord.comm
+            alias                   gradle.johnlord.comm
+            address                 192.168.0.52
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               bitpost.johnlord.comm
+            alias                   bitpost.johnlord.comm
+            address                 192.168.0.41
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               nexus.johnlord.comm
+            alias                   nexus.johnlord.comm
+            address                 192.168.0.35
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               k8s.johnlord.comm
+            alias                   k8s.johnlord.comm
+            address                 192.168.0.44
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               ldap.johnlord.comm
+            alias                   ldap.johnlord.comm
+            address                 192.168.0.51
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               zabbix.johnlord.comm
+            alias                   zabbix.johnlord.comm
+            address                 192.168.0.47
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               nessus.johnlord.comm
+            alias                   nessus.johnlord.comm
+            address                 192.168.0.49
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               nginx.johnlord.comm
+            alias                   nginx.johnlord.comm
+            address                 192.168.0.53
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               jira.johnlord.comm
+            alias                   jira.johnlord.comm
+            address                 192.168.0.42
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               dns.johnlord.comm
+            alias                   dns.johnlord.comm
+            address                 192.168.0.32
+
+}
+
+define host{
+
+            use                     linux-server
+            host_name               ipam.johnlord.comm
+            alias                   ipam.johnlord.comm
+            address                 192.168.0.63
+
+}
+                                    
+define hostgroup{                   
+                                    
+            hostgroup_name          linux-server            
+            alias                   Linux Servers            
+            members                 apache.johnlord.comm
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm
+            service_description     SWAP Uasge            
+            check_command           check_nrpe!check_swap                          
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm
+            service_description     Root / Partition            
+            check_command           check_nrpe!check_root                          
+                                    
+}                                   
+
+define service{                     
+                                    
+            use                     local-service            
+            host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm
+            service_description     Current Users            
+            check_command           check_nrpe!check_users                         
+                                    
+}                                   
+                                    
+define service{                     
+                                    
+            use                     local-service            
+            host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm     
+            service_description     Total Processes            
+            check_command           check_nrpe!check_total_procs                   
+                                    
+}    
