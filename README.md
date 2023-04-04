@@ -541,6 +541,10 @@ define service{
 }                                                                                     
                   
                   
+                  
+            host_name               apache.johnlord.comm,jenkins.johnlord.comm,maven.johnlord.comm,git.johnlord.comm,ans.johnlord.comm,tomcat.johnlord.comm,sona.johnlord.comm,gradle.johnlord.comm,bitpost.johnlord.comm,nexus.johnlord.comm,k8s.johnlord.comm,ldap.johnlord.comm,zabbix.johnlord.comm,nessus.johnlord.comm,nginx.johnlord.comm,jira.johnlord.comm,dns.johnlord.comm,ipam.johnlord.comm,oracle.johnlord.comm
+            
+            
 #!/bin/bash
 
 yum update -y
